@@ -241,7 +241,7 @@ export default function AstrologyApp() {
     const systemPrompt = t.systemPrompt(chart.name, chart.date.toDateString(), chart.date.toLocaleTimeString(), chart.place, chart.sun, chart.moon, chart.rising, planetStr);
     try {
       const history = messages.map((m) => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.text }));
-      const res = await fetch("/.netlify/functions/chat", {
+      const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ system: systemPrompt, messages: [...history, { role: "user", content: currentInput }] }),
