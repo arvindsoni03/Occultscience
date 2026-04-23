@@ -238,7 +238,7 @@ export default function AstrologyApp() {
     setLoading(true);
     const planetStr = chart.planets.map((p) => `${p.planet} in ${p.sign.sign}`).join(", ");
     const systemPrompt = t.systemPrompt(chart.name, chart.date.toDateString(), chart.date.toLocaleTimeString(), chart.place, chart.sun, chart.moon, chart.rising, planetStr);
-    try {
+    
     try {
       const history = messages.map((m) => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.text }));
       const res = await fetch("/api/chat", {
