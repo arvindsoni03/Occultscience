@@ -246,7 +246,7 @@ export default function AstrologyApp() {
         body: JSON.stringify({ system: systemPrompt, messages: [...history, { role: "user", content: currentInput }] }),
       });
       const data = await res.json();
-      const reply = data.content?.map((b) => b.text || "").join("") || data.error || "The stars are silent. Please try again.";
+      const reply = Array.isArray(data.content) ? data.content.map((b) => b.text || "").join("") : (data.error || "The stars are silent. Please try again.");
       setMessages((prev) => [...prev, { role: "assistant", text: reply }]);
     } catch (err) {
       setMessages((prev) => [...prev, { role: "assistant", text: "Connection interrupted. Please try again." }]);
