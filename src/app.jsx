@@ -238,32 +238,20 @@ export default function AstrologyApp() {
     setLoading(true);
     const planetStr = chart.planets.map((p) => `${p.planet} in ${p.sign.sign}`).join(", ");
     const systemPrompt = t.systemPrompt(chart.name, chart.date.toDateString(), chart.date.toLocaleTimeString(), chart.place, chart.sun, chart.moon, chart.rising, planetStr);
-    
+    const history = messages.map((m) => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.text }));
     try {
-      const history = messages.map((m) => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.text }));
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ system: systemPrompt, messages: [...history, { role: "user", content: currentInput }] }),
       });
-      const raw = await res.text();
-      let reply = "The stars are silent. Please try again.";
-      try {
-        const data = JSON.parse(raw);
-        if (Array.isArray(data.content)) {
-          reply = data.content.map((b) => String(b.text || "")).join("");
-        } else if (data.error) {
-          reply = String(data.error);
-        }
-      } catch(e) {
-        reply = "Parse error. Please try again.";
-      }
+      const data = await res.json();
+      const reply = Array.isArray(data.content) ? data.content.map((b) => b.text || "").join("") : (data.error || "Please try again.");
       setMessages((prev) => [...prev, { role: "assistant", text: reply }]);
     } catch (err) {
-      setMessages((prev) => [...prev, { role: "assistant", text: "Connection interrupted: " + String(err.message) }]);
+      setMessages((prev) => [...prev, { role: "assistant", text: "Error: " + err.message }]);
     }
     setLoading(false);
-    }
   }
 
   const currentLangObj = LANGUAGES.find((l) => l.code === lang);
