@@ -1,17 +1,15 @@
-exports.handler = async function (event) {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method Not Allowed" });
   }
 
   const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
   if (!ANTHROPIC_API_KEY) {
-    return { statusCode: 500, body: JSON.stringify({ error: "API key not configured" }) };
+    return res.status(500).json({ error: "API key not configured" });
   }
 
   try {
-    const body = JSON.parse(event.body);
-    const { system, messages } = body;
-
+    const { system, messages } = req.body;
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -26,25 +24,9 @@ exports.handler = async function (event) {
         messages,
       }),
     });
-
     const data = await response.json();
-
-    if (!response.ok) {
-      return {
-        statusCode: response.status,
-        body: JSON.stringify({ error: data.error?.message || "API error" }),
-      };
-    }
-
-    return {
-      statusCode: 200,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    };
+    return res.status(200).json(data);
   } catch (err) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Internal server error: " + err.message }),
-    };
+    return res.status(500).json({ error: err.message });
   }
-};
+}
