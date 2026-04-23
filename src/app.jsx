@@ -263,6 +263,7 @@ export default function AstrologyApp() {
       setMessages((prev) => [...prev, { role: "assistant", text: "Connection interrupted: " + String(err.message) }]);
     }
     setLoading(false);
+    }
   }
 
   const currentLangObj = LANGUAGES.find((l) => l.code === lang);
